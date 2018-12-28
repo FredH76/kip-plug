@@ -1,0 +1,14 @@
+{
+  "name": "cordova-plugin-background-video",
+  "version": "0.0.1",
+  "description": "start/stop/keep recording video even when app is in background mode",
+  "cordova": {
+    "id": "cordova-plugin-background-video",
+    "platforms": []
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Frederic Huguenin",
+  "license": "ISC"
+}
