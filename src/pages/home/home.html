@@ -1,14 +1,30 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      Background App Test
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
   <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
+    <button ion-button large outline block icon-start (click)="startTimer()">
+      <ion-icon name="play"></ion-icon>
+      start music
+    </button>
+    <br>
+    <button ion-button large outline block icon-start (click)="startPhoneCall()">
+      <ion-icon name="call"></ion-icon>
+      phone call
+    </button>
+    <br>
+    <button ion-button large outline block icon-start (click)="stopTimer()">
+      <ion-icon name="square"></ion-icon>
+      stop music
+    </button>
+    <br>
+    <button ion-button large outline block>
+      {{count}}
+    </button>
   </p>
 </ion-content>
