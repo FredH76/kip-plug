@@ -1,4 +1,4 @@
-package com.crossappstudio.backgroundvideo;
+package com.crossAppStudio.backgroundVideo;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
