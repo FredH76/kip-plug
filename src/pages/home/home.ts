@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { Observable } from 'rxjs/Observable.js'
 import 'rxjs/add/observable/interval';
 
+import backgroundVideo from '../../../plugins/cordova-plugin-background-video/www/backgroundVideo';
+
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -34,7 +36,8 @@ export class HomePage {
   }
 
   public startPhoneCall() {
-    this.callNumber.callNumber("0664545968", true);
+    //this.callNumber.callNumber("0664545968", true);
+    backgroundVideo.coolMethod("it works great!!!", (res) => console.debug(res), (res) => console.error(res));
   }
 
   public stopTimer() {
