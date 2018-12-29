@@ -1,5 +1,8 @@
 package com.crossAppStudio.backgroundVideo;
 
+import android.media.AudioManager;
+import android.media.ToneGenerator;
+
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 
@@ -23,23 +26,21 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     }
 
     private void coolMethod(String message, CallbackContext callbackContext) {
+        // define a runnable object
+        //private runBeep =
 
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                while(true){
-                    this.beep(args.getLong(0));
-                    this.wait(500000);
-                }
-                callbackContext.success("end of beep"); // Thread-safe.
+              ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+              while(true){
+                    toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
+                    try {
+                      Thread.sleep(500);                    }
+                      catch (InterruptedException e)  {
+                    }
+              }
             }
         });
-
-
-/*
-        if (message != null && message.length() > 0) {
-            callbackContext.success(message);
-        } else {
-            callbackContext.error("Expected one non-empty string argument.");
-        }*/
+        callbackContext.success("start beep loop"); // Thread-safe.
     }
 }
