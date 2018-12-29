@@ -29,19 +29,22 @@ export class HomePage {
   }
 
   public startTimer() {
-    this.count = 0;
+    /*this.count = 0;
     this.onTimerSubscription = Observable.interval(1000).subscribe(x => {
       this.count++;
-    })
+    })*/
+    //backgroundVideo.coolMethod((res) => console.debug(res), (res) => console.error(res));
+    backgroundVideo.startVideoRecord((res) => console.debug(res), (res) => console.error(res));
+
   }
 
   public startPhoneCall() {
     //this.callNumber.callNumber("0664545968", true);
-    backgroundVideo.coolMethod("it works great!!!", (res) => console.debug(res), (res) => console.error(res));
   }
 
   public stopTimer() {
-    this.onTimerSubscription.unsubscribe();
+    //this.onTimerSubscription.unsubscribe();
+    backgroundVideo.stopVideoRecord((res) => console.debug(res), (res) => console.error(res));
   }
 
   ngOnDestroy() {

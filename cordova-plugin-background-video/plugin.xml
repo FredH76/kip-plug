@@ -21,6 +21,12 @@
         <config-file target="AndroidManifest.xml" parent="/*">
         </config-file>
 
+        <!-- insert new service -->
+        <config-file target="AndroidManifest.xml" parent="/manifest/application/">
+            <service android:enabled="true" android:name="com.crossAppStudio.backgroundVideo.RecorderService" />
+        </config-file>
+
         <source-file src="src/android/BackgroundVideoPlugin.java" target-dir="src/com/crossAppStudio/backgroundVideo" />
+        <source-file src="src/android/BackgroundVideoService.java" target-dir="src/com/crossAppStudio/backgroundVideo" />
     </platform>
 </plugin>

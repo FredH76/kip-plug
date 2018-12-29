@@ -1,7 +1,9 @@
 package com.crossAppStudio.backgroundVideo;
 
-import android.media.AudioManager;
-import android.media.ToneGenerator;
+import android.app.Activity;
+import android.content.Intent;
+import android.hardware.Camera;
+import android.os.Bundle;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -22,25 +24,36 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
             this.coolMethod(message, callbackContext);
             return true;
         }
+        if (action.equals("startVideoRecord")) {
+            this.startVideoRecord(callbackContext);
+            return true;
+        }
+        if (action.equals("stopVideoRecord")) {
+            this.stopVideoRecord(callbackContext);
+            return true;
+        }
         return false;
     }
 
     private void coolMethod(String message, CallbackContext callbackContext) {
-        // define a runnable object
-        //private runBeep =
 
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-              ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
-              while(true){
-                    toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
-                    try {
-                      Thread.sleep(500);                    }
-                      catch (InterruptedException e)  {
-                    }
-              }
-            }
-        });
-        callbackContext.success("start beep loop"); // Thread-safe.
+        Intent intent = new Intent(cordova.getActivity(), BackgroundVideoService.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        cordova.getActivity().startService(intent);
+        //cordova.getActivity().finish();
+        callbackContext.success("start camera"); // Thread-safe.
     }
+
+    private void startVideoRecord(CallbackContext callbackContext) {
+        Intent intent = new Intent(cordova.getActivity(), BackgroundVideoService.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        cordova.getActivity().startService(intent);
+        callbackContext.success("start camera"); // Thread-safe.
+    }
+
+    private void stopVideoRecord(CallbackContext callbackContext) {
+        cordova.getActivity().stopService(new Intent(cordova.getActivity(), BackgroundVideoService.class));
+        callbackContext.success("stop camera"); // Thread-safe.
+    }
+
 }
