@@ -23,10 +23,23 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     }
 
     private void coolMethod(String message, CallbackContext callbackContext) {
+
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                while(true){
+                    this.beep(args.getLong(0));
+                    this.wait(500000);
+                }
+                callbackContext.success("end of beep"); // Thread-safe.
+            }
+        });
+
+
+/*
         if (message != null && message.length() > 0) {
             callbackContext.success(message);
         } else {
             callbackContext.error("Expected one non-empty string argument.");
-        }
+        }*/
     }
 }
