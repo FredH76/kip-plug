@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
+import android.media.ToneGenerator;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -19,6 +21,7 @@ public class BackgroundVideoService extends Service {
     private static Camera mServiceCamera;
     private boolean mRecordingStatus;
     private MediaRecorder mMediaRecorder;
+    ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
 
     @Override
     public void onCreate() {
@@ -47,25 +50,26 @@ public class BackgroundVideoService extends Service {
 
     public boolean startRecording() {
         Toast.makeText(getBaseContext(), "Recording Started", Toast.LENGTH_SHORT).show();
+        toneGen1.startTone(ToneGenerator.TONE_SUP_CONGESTION);
         /*
          * try {
-         * 
+         *
          * // mServiceCamera = Camera.open(); Camera.Parameters params =
          * mServiceCamera.getParameters(); mServiceCamera.setParameters(params);
          * Camera.Parameters p = mServiceCamera.getParameters();
-         * 
+         *
          * final List<Size> listSize = p.getSupportedPreviewSizes(); Size mPreviewSize =
          * listSize.get(2); Log.v(TAG, "use: width = " + mPreviewSize.width +
          * " height = " + mPreviewSize.height); p.setPreviewSize(mPreviewSize.width,
          * mPreviewSize.height); p.setPreviewFormat(PixelFormat.YCbCr_420_SP);
          * mServiceCamera.setParameters(p);
-         * 
+         *
          * try { mServiceCamera.setPreviewDisplay(mSurfaceHolder);
          * mServiceCamera.startPreview(); } catch (IOException e) { Log.e(TAG,
          * e.getMessage()); e.printStackTrace(); }
-         * 
+         *
          * mServiceCamera.unlock();
-         * 
+         *
          * mMediaRecorder = new MediaRecorder();
          * mMediaRecorder.setCamera(mServiceCamera);
          * mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -77,11 +81,11 @@ public class BackgroundVideoService extends Service {
          * mMediaRecorder.setVideoFrameRate(30);
          * mMediaRecorder.setVideoSize(mPreviewSize.width, mPreviewSize.height);
          * //mMediaRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
-         * 
+         *
          * mMediaRecorder.prepare(); mMediaRecorder.start();
-         * 
+         *
          * mRecordingStatus = true;
-         * 
+         *
          * return true; } catch (IllegalStateException e) { Log.d(TAG, e.getMessage());
          * e.printStackTrace(); return false; } catch (IOException e) { Log.d(TAG,
          * e.getMessage()); e.printStackTrace(); return false; }
@@ -91,13 +95,14 @@ public class BackgroundVideoService extends Service {
 
     public void stopRecording() {
         Toast.makeText(getBaseContext(), "Recording Stopped", Toast.LENGTH_SHORT).show();
+        toneGen1.stopTone();
         /*
          * try { mServiceCamera.reconnect(); } catch (IOException e) { // TODO
          * Auto-generated catch block e.printStackTrace(); } mMediaRecorder.stop();
          * mMediaRecorder.reset();
-         * 
+         *
          * mServiceCamera.stopPreview(); mMediaRecorder.release();
-         * 
+         *
          * mServiceCamera.release(); mServiceCamera = null;
          */
     }
