@@ -51,6 +51,10 @@ public class BackgroundVideoService extends Service {
     public boolean startRecording() {
         Toast.makeText(getBaseContext(), "Recording Started", Toast.LENGTH_SHORT).show();
         toneGen1.startTone(ToneGenerator.TONE_SUP_CONGESTION);
+
+        // test if device has camera
+        checkCameraHardware(this);
+   
         /*
          * try {
          *
@@ -91,6 +95,19 @@ public class BackgroundVideoService extends Service {
          * e.getMessage()); e.printStackTrace(); return false; }
          */
         return true;
+    }
+
+     /** Check if this device has a camera */
+     private boolean checkCameraHardware(Context context) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)){
+            // this device has a camera
+            Toast.makeText(getBaseContext(), "this device has a camera", Toast.LENGTH_SHORT).show();
+            return true;
+        } else {
+            // no camera on this device
+            Toast.makeText(getBaseContext(), "no camera on this device", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
     public void stopRecording() {
