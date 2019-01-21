@@ -28,6 +28,10 @@ export class HomePage {
 
   }
 
+  public hasCamera() {
+    backgroundVideo.hasCamera((res) => console.debug(res), (res) => console.error(res));
+  }
+
   public startTimer() {
     /*this.count = 0;
     this.onTimerSubscription = Observable.interval(1000).subscribe(x => {
