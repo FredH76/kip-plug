@@ -19,7 +19,11 @@
 
         <!-- add specific authorisation here -->
         <config-file target="AndroidManifest.xml" parent="/*">
-        </config-file>
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-feature android:name="android.hardware.camera" android:required="false" />
+       </config-file>
 
         <!-- insert new service -->
         <config-file target="AndroidManifest.xml" parent="/manifest/application/">
