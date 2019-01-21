@@ -1,15 +1,18 @@
 package com.crossAppStudio.backgroundVideo;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.widget.Toast;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +22,8 @@ import org.json.JSONObject;
 public class BackgroundVideoPlugin extends CordovaPlugin {
 
     public static final int ERROR_CODE_NO_CAMERA = 1;
+
+    public static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -63,6 +68,15 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
             callbackContext.error(ERROR_CODE_NO_CAMERA);
             return;
          }
+
+        if (ContextCompat.checkSelfPermission(cordova.getActivity().getBaseContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // Ask for permission
+            ActivityCompat.requestPermissions(cordova.getActivity(), new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+            return;
+        } else {
+             // Permission has already been granted
+        }
+
 
         Intent intent = new Intent(cordova.getActivity(), BackgroundVideoService.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -32,5 +32,9 @@
 
         <source-file src="src/android/BackgroundVideoPlugin.java" target-dir="src/com/crossAppStudio/backgroundVideo" />
         <source-file src="src/android/BackgroundVideoService.java" target-dir="src/com/crossAppStudio/backgroundVideo" />
+
+        <!-- import other repo and compile them -->
+        <!--<framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />-->
+
     </platform>
 </plugin>
