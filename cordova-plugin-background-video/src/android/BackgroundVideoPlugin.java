@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -17,6 +19,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class BackgroundVideoPlugin extends CordovaPlugin {
 
@@ -24,12 +30,20 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   public static final int ERROR_CODE_NO_PERMISSION_FOR_CAMERA = 2;
   public static final int ERROR_CODE_NO_PERMISSION_FOR_RECORD_AUDIO = 3;
   public static final int ERROR_CODE_NO_PERMISSION_FOR_WRITE_EXTERNAL_STORAGE = 4;
+  public static final int ERROR_CODE_INVALID_FILE_DESTINATION = 5;
 
 
   public static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
   public static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 2;
   public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 3;
 
+  public static final int QUALITY_LOW = 1;
+  public static final int QUALITY_MEDIUM = 2;
+  public static final int QUALITY_HIGH = 3;
+
+  private static final String TAG = "BackgroundVideoService";
+  private int videoQuality = -1;
+  private String fileDestination = "";
   private CallbackContext callbackContext;
 
   @Override
@@ -37,16 +51,22 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     // save callbackContext
     this.callbackContext = callbackContext;
 
-    if (action.equals("coolMethod")) {
-      String message = args.getString(0);
-      this.coolMethod(message, callbackContext);
-      return true;
-    }
     if (action.equals("hasCamera")) {
       this.hasCamera(callbackContext);
       return true;
     }
+    if (action.equals("setQuality")) {
+      int quality = args.getInt(0);
+      this.setQuality(quality, callbackContext);
+      return true;
+    }
     if (action.equals("startVideoRecord")) {
+      // get file destination from args[]
+      if (args.length() > 0) {
+        this.fileDestination = args.getString(0);
+      } else {
+        this.fileDestination = createOutputMediaFile();
+      }
       this.startVideoRecord(callbackContext);
       return true;
     }
@@ -57,11 +77,10 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     return false;
   }
 
-  private void coolMethod(String message, CallbackContext callbackContext) {
-    // do something cool here
-  }
 
-
+  /*************************************************************************************************
+   * hasCamera : test if device is equiped with camera
+   ************************************************************************************************/
   private void hasCamera(CallbackContext callbackContext) {
     if (cordova.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
       Toast.makeText(cordova.getActivity().getBaseContext(), "this device has camera", Toast.LENGTH_SHORT).show();
@@ -72,27 +91,43 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     }
   }
 
+  /*************************************************************************************************
+   * setQuality : set video quality
+   ************************************************************************************************/
+  private void setQuality(int quality, CallbackContext callbackContext) {
+  }
+
+  /*************************************************************************************************
+   * startVideoRecord : start recording a video and save it to destFile
+   ************************************************************************************************/
   private void startVideoRecord(CallbackContext callbackContext) {
+
     // check if device has camera
     if (!cordova.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
       callbackContext.error(ERROR_CODE_NO_CAMERA);
       return;
     }
 
+    // check if fileDestination is valid
+    if (!isFileDestinationValid(this.fileDestination)) {
+      callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
+      return;
+    }
+
     // ask for CAMERA PERMISSION
-    if(!cordova.hasPermission(Manifest.permission.CAMERA)){
+    if (!cordova.hasPermission(Manifest.permission.CAMERA)) {
       cordova.requestPermission(this, MY_PERMISSIONS_REQUEST_CAMERA, Manifest.permission.CAMERA);
       return;
     }
 
     // ask for RECORD_AUDIO PERMISSION
-    if(!cordova.hasPermission(Manifest.permission.RECORD_AUDIO)){
+    if (!cordova.hasPermission(Manifest.permission.RECORD_AUDIO)) {
       cordova.requestPermission(this, MY_PERMISSIONS_REQUEST_RECORD_AUDIO, Manifest.permission.RECORD_AUDIO);
       return;
     }
 
     // ask for WRITE EXTERNAL PERMISSION
-    if(!cordova.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+    if (!cordova.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
       cordova.requestPermission(this, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
       return;
     }
@@ -108,18 +143,25 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
 
     Intent intent = new Intent(cordova.getActivity(), BackgroundVideoService.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    intent.putExtra("quality", this.videoQuality);
+    intent.putExtra("fileDestination", this.fileDestination);
     cordova.getActivity().startService(intent);
     callbackContext.success("start camera"); // Thread-safe.
   }
 
+  /*************************************************************************************************
+   * stopVideoRecord : stop recording a video
+   ************************************************************************************************/
   private void stopVideoRecord(CallbackContext callbackContext) {
     cordova.getActivity().stopService(new Intent(cordova.getActivity(), BackgroundVideoService.class));
     callbackContext.success("stop camera"); // Thread-safe.
   }
 
+  /*************************************************************************************************
+   * onRequestPermissionResult : catch user permission choice
+   ************************************************************************************************/
   @Override
-  public void onRequestPermissionResult(int requestCode, String[] permission, int[] grantResults) throws JSONException
-  {
+  public void onRequestPermissionResult(int requestCode, String[] permission, int[] grantResults) throws JSONException {
     switch (requestCode) {
       case MY_PERMISSIONS_REQUEST_CAMERA: {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -148,6 +190,61 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
         }
         return;
       }
+    }
+  }
+
+  /*************************************************************************************************
+   * createOutputMediaFile : Create a File and Directory to save the video
+   ************************************************************************************************/
+  private String createOutputMediaFile() {
+
+    // use the default movies directory of the app (to automatically delete video on app uninstall)
+    File mediaStorageDir = cordova.getActivity().getBaseContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+
+    // Create the storage directory if it does not exist
+    if (!mediaStorageDir.exists()) {
+      if (!mediaStorageDir.mkdirs()) {
+        Log.d("MyCameraApp", "failed to create directory");
+        return null;
+      }
+    }
+
+    // Create a unique file name
+    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    String mediaFileName = mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + ".mp4";
+
+    return mediaFileName;
+  }
+
+  /*************************************************************************************************
+   * isFileDestinationValid : test if filePath is valid or not
+   ************************************************************************************************/
+  private boolean isFileDestinationValid(String fileName) {
+
+    try {
+      File fileTest = new File(fileName);
+      File dirTest = fileTest.getParentFile();
+
+      /* if no directory in file name, return false
+      if (dirTest == null) {
+        Log.d(TAG, "no directory path in given file name : " + fileName);
+        return false;
+      }*/
+
+      // Create the storage directory if it does not exist
+      if (!dirTest.exists()) {
+        if (!dirTest.mkdirs()) {
+          Log.d(TAG, "failed to create directory : " + dirTest.toString());
+          return false;
+        }
+      }
+      return true;
+    } catch (NullPointerException e) {
+      Log.d(TAG, "failed to create directory for file : " + fileName);
+      return false;
+    } catch (SecurityException e) {
+      Log.d(TAG, "failed to create directory for file : " + fileName);
+      return false;
     }
   }
 }

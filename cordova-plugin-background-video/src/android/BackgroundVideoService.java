@@ -39,7 +39,7 @@ public class BackgroundVideoService extends Service {
 
     // get service parameter (CAM POSITION, RESOLUTION, FILE DESTINATION, ...)
     //camPosition = intent.getParcelableExtra("camPosisiton");
-    //fileDestination = intent.getParcelableExtra("fileDestination");
+    fileDestination = intent.getStringExtra("fileDestination");
 
     // start recording if not yet in progress
     if (mRecordingStatus == false)
@@ -97,7 +97,7 @@ public class BackgroundVideoService extends Service {
       mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
 
       // Step 4: Set output file
-      mMediaRecorder.setOutputFile(getOutputMediaFile(null).toString());
+      mMediaRecorder.setOutputFile(fileDestination);
 
       // Step 5: Set hidden preview output (requires API Level 23 or higher)
       Surface hiddenSurface= MediaCodec.createPersistentInputSurface();
@@ -160,35 +160,4 @@ public class BackgroundVideoService extends Service {
     }
     return c;
   }
-
-
-  /*************************************************************************************************
-   * Create a File for saving a video
-   ************************************************************************************************/
-  private static File getOutputMediaFile(String fileDest) {
-    File mediaFile;
-
-    // To be safe, you should check that the SDCard is mounted
-    // using Environment.getExternalStorageState() before doing this.
-
-    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES), "MyCameraApp");
-    // This location works best if you want the created images to be shared
-    // between applications and persist after your app has been uninstalled.
-
-    // Create the storage directory if it does not exist
-    if (!mediaStorageDir.exists()) {
-      if (!mediaStorageDir.mkdirs()) {
-        Log.d("MyCameraApp", "failed to create directory");
-        return null;
-      }
-    }
-
-    // Create a media file name
-    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-    mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-        "VID_" + timeStamp + ".mp4");
-
-    return mediaFile;
-  }
-
 }
