@@ -67,7 +67,7 @@ public class BackgroundVideoService extends Service {
   }
 
   /*************************************************************************************************
-   * startRecording : prepare media recorder and start video recording 
+   * startRecording : prepare media recorder and start video recording
    ************************************************************************************************/
   private boolean startRecording() {
     mRecordingStatus = true;
@@ -91,9 +91,9 @@ public class BackgroundVideoService extends Service {
       // Step 2: Set sources
       mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
       mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-      //mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
       // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
+      mMediaRecorder.setOrientationHint(90);
       mMediaRecorder.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH));
 
       // Step 4: Set output file
@@ -110,13 +110,9 @@ public class BackgroundVideoService extends Service {
 
       return true;
     } catch (IllegalStateException e) {
-      Log.d(TAG, e.getMessage());
-      e.printStackTrace();
       stopRecording();
       return false;
     } catch (IOException e) {
-      Log.d(TAG, e.getMessage());
-      e.printStackTrace();
       stopRecording();
       return false;
     }
@@ -134,10 +130,14 @@ public class BackgroundVideoService extends Service {
 
     // STOP AND RELEASE MEDIA RECORDER
     if (mMediaRecorder != null) {
-      mMediaRecorder.stop();  // stop the recording
+      try {
+        mMediaRecorder.stop();  // stop the recording
+      }
+      catch(IllegalStateException e){};
       mMediaRecorder.reset();   // clear recorder configuration
       mMediaRecorder.release(); // release the recorder object
       mMediaRecorder = null;
+
     }
 
     // STOP and RELEASE CAMERA
@@ -158,7 +158,7 @@ public class BackgroundVideoService extends Service {
     } catch (Exception e) {
       // Camera is not available (in use or does not exist)
     }
-    return c; 
+    return c;
   }
 
 
