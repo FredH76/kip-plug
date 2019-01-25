@@ -22,6 +22,7 @@
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
             <uses-permission android:name="android.permission.RECORD_AUDIO" />
             <uses-permission android:name="android.permission.CAMERA" />
+            <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
             <uses-feature android:name="android.hardware.camera" android:required="false" />
        </config-file>
 
@@ -32,6 +33,12 @@
 
         <source-file src="src/android/BackgroundVideoPlugin.java" target-dir="src/com/crossAppStudio/backgroundVideo" />
         <source-file src="src/android/BackgroundVideoService.java" target-dir="src/com/crossAppStudio/backgroundVideo" />
+
+        <!-- copy ressource file -->
+        <source-file src="src/android/res/drawable-hdpi/ic_camera_on.png" target-dir="res/drawable-hdpi/" />
+        <source-file src="src/android/res/drawable-mdpi/ic_camera_on.png" target-dir="res/drawable-mdpi/" />
+        <source-file src="src/android/res/drawable-xhdpi/ic_camera_on.png" target-dir="res/drawable-xhdpi/" />
+        <source-file src="src/android/res/drawable-xxhdpi/ic_camera_on.png" target-dir="res/drawable-xxhdpi/" />
 
         <!-- import other repo and compile them -->
         <!--<framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />-->

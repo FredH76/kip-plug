@@ -44,6 +44,23 @@ public class BackgroundVideoService extends Service {
     // start recording if not yet in progress
     if (mRecordingStatus == false)
       startRecording();
+          
+    // Put this service in foreground to prevent being killed by system
+    // rq: notification is mandatory for Android 9 (API >= 28)
+    Intent notificationIntent = new Intent();
+    PendingIntent pendingIntent =
+      PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+    Notification notification =
+      new Notification.Builder(this)
+        .setContentTitle("Video")
+        .setContentText("Enregistrement en cours ...")
+        .setSmallIcon(R.drawable.ic_camera_on)
+        .setContentIntent(pendingIntent)
+        .build();
+
+    startForeground(1, notification);
+
     super.onStart(intent, startId);
   }
 
