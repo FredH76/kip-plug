@@ -30,7 +30,8 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   public static final int ERROR_CODE_NO_PERMISSION_FOR_CAMERA = 2;
   public static final int ERROR_CODE_NO_PERMISSION_FOR_RECORD_AUDIO = 3;
   public static final int ERROR_CODE_NO_PERMISSION_FOR_WRITE_EXTERNAL_STORAGE = 4;
-  public static final int ERROR_CODE_INVALID_FILE_DESTINATION = 5;
+  public static final int ERROR_CODE_PARAMETER_EXPECTED = 5
+  public static final int ERROR_CODE_INVALID_FILE_DESTINATION = 6;
 
 
   public static final int MY_PERMISSIONS_REQUEST_CAMERA = 1;
@@ -61,13 +62,21 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       return true;
     }
     if (action.equals("startVideoRecord")) {
+      // chek if fileDestination parameter is present
+      if (args.length() <= 0) {
+        callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
+        return false;
+      } 
       // get file destination from args[]
-      if (args.length() > 0) {
-        this.fileDestination = args.getString(0);
-      } else {
+      this.fileDestination = args.getString(0);
+      if(!isFileDestinationValid(this.fileDestination)){
         this.fileDestination = createOutputMediaFile();
-      }
-      this.startVideoRecord(callbackContext);
+        /* TO BE UNCOMMENTED IN RELEASE VERSION
+        callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
+        return false;
+        */
+      } 
+      this.startVideoRecord(this.fileDestination, callbackContext);
       return true;
     }
     if (action.equals("stopVideoRecord")) {
@@ -100,17 +109,11 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   /*************************************************************************************************
    * startVideoRecord : start recording a video and save it to destFile
    ************************************************************************************************/
-  private void startVideoRecord(CallbackContext callbackContext) {
+  private void startVideoRecord(String fileDestination, CallbackContext callbackContext) {
 
     // check if device has camera
     if (!cordova.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
       callbackContext.error(ERROR_CODE_NO_CAMERA);
-      return;
-    }
-
-    // check if fileDestination is valid
-    if (!isFileDestinationValid(this.fileDestination)) {
-      callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
       return;
     }
 
