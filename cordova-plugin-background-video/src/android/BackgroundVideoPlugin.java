@@ -30,7 +30,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   public static final int ERROR_CODE_NO_PERMISSION_FOR_CAMERA = 2;
   public static final int ERROR_CODE_NO_PERMISSION_FOR_RECORD_AUDIO = 3;
   public static final int ERROR_CODE_NO_PERMISSION_FOR_WRITE_EXTERNAL_STORAGE = 4;
-  public static final int ERROR_CODE_PARAMETER_EXPECTED = 5
+  public static final int ERROR_CODE_PARAMETER_EXPECTED = 5;
   public static final int ERROR_CODE_INVALID_FILE_DESTINATION = 6;
 
 
@@ -62,20 +62,18 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       return true;
     }
     if (action.equals("startVideoRecord")) {
-      // chek if fileDestination parameter is present
+      /* chek if fileDestination parameter is present
       if (args.length() <= 0) {
         callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
         return false;
-      } 
+      }
       // get file destination from args[]
       this.fileDestination = args.getString(0);
       if(!isFileDestinationValid(this.fileDestination)){
-        this.fileDestination = createOutputMediaFile();
-        /* TO BE UNCOMMENTED IN RELEASE VERSION
         callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
         return false;
-        */
-      } 
+      }*/
+      this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
       this.startVideoRecord(this.fileDestination, callbackContext);
       return true;
     }
@@ -168,7 +166,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     switch (requestCode) {
       case MY_PERMISSIONS_REQUEST_CAMERA: {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          startVideoRecord(this.callbackContext);
+          startVideoRecord(this.fileDestination, this.callbackContext);
         } else {
           Toast.makeText(cordova.getActivity().getBaseContext(), "Vous devez autoriser l'usage de la camera pour utiliser cette fonction", Toast.LENGTH_LONG).show();
           callbackContext.error(ERROR_CODE_NO_PERMISSION_FOR_CAMERA);
@@ -177,7 +175,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       }
       case MY_PERMISSIONS_REQUEST_RECORD_AUDIO: {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          startVideoRecord(this.callbackContext);
+          startVideoRecord(this.fileDestination, this.callbackContext);
         } else {
           Toast.makeText(cordova.getActivity().getBaseContext(), "Vous devez autoriser l'usage du micro pour utiliser cette fonction", Toast.LENGTH_LONG).show();
           callbackContext.error(ERROR_CODE_NO_PERMISSION_FOR_RECORD_AUDIO);
@@ -186,7 +184,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       }
       case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-          startVideoRecord(this.callbackContext);
+          startVideoRecord(this.fileDestination, this.callbackContext);
         } else {
           Toast.makeText(cordova.getActivity().getBaseContext(), "Vous devez autoriser le stokage de fichier pour utiliser cette fonction", Toast.LENGTH_SHORT).show();
           callbackContext.error(ERROR_CODE_NO_PERMISSION_FOR_WRITE_EXTERNAL_STORAGE);
@@ -227,12 +225,6 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     try {
       File fileTest = new File(fileName);
       File dirTest = fileTest.getParentFile();
-
-      /* if no directory in file name, return false
-      if (dirTest == null) {
-        Log.d(TAG, "no directory path in given file name : " + fileName);
-        return false;
-      }*/
 
       // Create the storage directory if it does not exist
       if (!dirTest.exists()) {
