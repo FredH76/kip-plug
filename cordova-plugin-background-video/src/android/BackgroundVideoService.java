@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -23,6 +25,8 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
+
+import io.ionic.starter.R;
 
 public class BackgroundVideoService extends Service {
   private static final String TAG = "BackgroundVideoService";
@@ -44,7 +48,7 @@ public class BackgroundVideoService extends Service {
     // start recording if not yet in progress
     if (mRecordingStatus == false)
       startRecording();
-          
+
     // Put this service in foreground to prevent being killed by system
     // rq: notification is mandatory for Android 9 (API >= 28)
     Intent notificationIntent = new Intent();
