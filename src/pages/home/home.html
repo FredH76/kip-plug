@@ -13,9 +13,9 @@
       has camera
     </button>
     <br>
-    <button ion-button large outline block icon-start (click)="startTimer()">
+    <button ion-button large outline block icon-start (click)="startVideoRecord()">
       <ion-icon name="play"></ion-icon>
-      start music
+      start recording
     </button>
     <br>
     <button ion-button large outline block icon-start (click)="startPhoneCall()">
@@ -23,13 +23,10 @@
       phone call
     </button>
     <br>
-    <button ion-button large outline block icon-start (click)="stopTimer()">
+    <button ion-button large outline block icon-start (click)="stopVideoRecord()">
       <ion-icon name="square"></ion-icon>
-      stop music
+      stop recording
     </button>
     <br>
-    <button ion-button large outline block>
-      {{count}}
-    </button>
   </p>
 </ion-content>

@@ -41,28 +41,28 @@ public class BackgroundVideoService extends Service {
   @Override
   public void onStart(Intent intent, int startId) {
 
-    // get service parameter (CAM POSITION, RESOLUTION, FILE DESTINATION, ...)
+     // return if already recording in progress
+     if (mRecordingStatus == true){
+      Toast.makeText(getBaseContext(), "Recording already in progress", Toast.LENGTH_SHORT).show();
+      return;
+    }
+   // get service parameter (CAM POSITION, RESOLUTION, FILE DESTINATION, ...)
     //camPosition = intent.getParcelableExtra("camPosisiton");
     fileDestination = intent.getStringExtra("fileDestination");
-
-    // start recording if not yet in progress
-    if (mRecordingStatus == false)
-      startRecording();
+    
+    // start recording 
+    startRecording();
 
     // Put this service in foreground to prevent being killed by system
     // rq: notification is mandatory for Android 9 (API >= 28)
     Intent notificationIntent = new Intent();
-    PendingIntent pendingIntent =
-      PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-    Notification notification =
-      new Notification.Builder(this)
+    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+    Notification notification = new Notification.Builder(this)
         .setContentTitle("Video")
         .setContentText("Enregistrement en cours ...")
         .setSmallIcon(R.drawable.ic_camera_on)
         .setContentIntent(pendingIntent)
         .build();
-
     startForeground(1, notification);
 
     super.onStart(intent, startId);

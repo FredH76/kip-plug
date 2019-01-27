@@ -13,8 +13,6 @@ import backgroundVideo from '../../../plugins/cordova-plugin-background-video/ww
   templateUrl: 'home.html'
 })
 export class HomePage {
-  public count: number = 0;
-  private onTimerSubscription: Subscription;
   private onResumeSubscription: Subscription;
 
   constructor(
@@ -32,28 +30,22 @@ export class HomePage {
     backgroundVideo.hasCamera((res) => console.debug(res), (res) => console.error(res));
   }
 
-  public startTimer() {
-    /*this.count = 0;
-    this.onTimerSubscription = Observable.interval(1000).subscribe(x => {
-      this.count++;
-    })*/
+  public startVideoRecord() {
     //backgroundVideo.coolMethod((res) => console.debug(res), (res) => console.error(res));
     backgroundVideo.startVideoRecord((res) => console.debug(res), (res) => console.error(res));
 
   }
 
   public startPhoneCall() {
-    //this.callNumber.callNumber("0664545968", true);
+    this.callNumber.callNumber("0664545968", true);
   }
 
-  public stopTimer() {
-    //this.onTimerSubscription.unsubscribe();
+  public stopVideoRecord() {
     backgroundVideo.stopVideoRecord((res) => console.debug(res), (res) => console.error(res));
   }
 
   ngOnDestroy() {
     // always unsubscribe your subscriptions to prevent leaks
-    this.onTimerSubscription.unsubscribe();
     this.onResumeSubscription.unsubscribe();
   }
 
