@@ -69,6 +69,8 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       }
       // get file destination from args[]
       this.fileDestination = args.getString(0);
+      // remove cordova prefixe
+      this.fileDestination= this.fileDestination.replaceAll("file://","");
       if(!isFileDestinationValid(this.fileDestination)){
         callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
         return false;
@@ -224,9 +226,6 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   private boolean isFileDestinationValid(String fileName) {
 
     try {
-      // remove cordova prefixe
-      fileName= fileName.replaceAll("file://","");
-
       File fileTest = new File(fileName);
       File dirTest = fileTest.getParentFile();
 
