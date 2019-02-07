@@ -62,8 +62,8 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       return true;
     }
     if (action.equals("startVideoRecord")) {
-      /* chek if fileDestination parameter is present
-      if (args.length() <= 0) {
+      // check if fileDestination parameter is present
+      if (args.length() <= 0 || args.getString(0) == "null") {
         callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
         return false;
       }
@@ -72,8 +72,8 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       if(!isFileDestinationValid(this.fileDestination)){
         callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
         return false;
-      }*/
-      this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
+      }
+      //this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
       this.startVideoRecord(this.fileDestination, callbackContext);
       return true;
     }
@@ -108,6 +108,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
    * startVideoRecord : start recording a video and save it to destFile
    ************************************************************************************************/
   private void startVideoRecord(String fileDestination, CallbackContext callbackContext) {
+    String fileDest  = fileDestination;
 
     // check if device has camera
     if (!cordova.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
@@ -223,6 +224,9 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   private boolean isFileDestinationValid(String fileName) {
 
     try {
+      // remove cordova prefixe
+      fileName= fileName.replaceAll("file://","");
+
       File fileTest = new File(fileName);
       File dirTest = fileTest.getParentFile();
 

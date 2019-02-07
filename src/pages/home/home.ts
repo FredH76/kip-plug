@@ -3,11 +3,11 @@ import { NavController } from 'ionic-angular';
 import { CallNumber } from '@ionic-native/call-number';
 import { Platform } from 'ionic-angular';
 import { Subscription } from 'rxjs';
-import { Observable } from 'rxjs/Observable.js'
 import 'rxjs/add/observable/interval';
 
 import backgroundVideo from '../../../plugins/cordova-plugin-background-video/www/backgroundVideo';
 
+declare var cordova: any
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
@@ -21,19 +21,31 @@ export class HomePage {
     platform: Platform) {
     this.onResumeSubscription = platform.resume.subscribe(() => {
       // do something meaningful when the app is put in the foreground
-      console.error("RESUME APP");
+      console.log("APP is back in FOREGROUND");
     });
 
   }
 
   public hasCamera() {
-    backgroundVideo.hasCamera((res) => console.debug(res), (res) => console.error(res));
+    backgroundVideo.hasCamera(
+      (suc) => { console.log(suc) },
+      (err) => { console.error("error code : " + err) }
+    );
   }
 
   public startVideoRecord() {
-    //backgroundVideo.coolMethod((res) => console.debug(res), (res) => console.error(res));
-    backgroundVideo.startVideoRecord((res) => console.debug(res), (res) => console.error(res));
+    //set file destination 
+    let fileDest: String = null;
 
+    // use of 'externalRootDirectory' for android only: 
+    fileDest = cordova.file.externalRootDirectory + "Pictures/KipKare/myVideo.mp4";
+
+    fileDest = fileDest.replace("file://", "");
+    backgroundVideo.startVideoRecord(
+      fileDest,
+      (suc) => { console.log(suc) },
+      (err) => { console.error("error code : " + err) }
+    );
   }
 
   public startPhoneCall() {
@@ -41,7 +53,10 @@ export class HomePage {
   }
 
   public stopVideoRecord() {
-    backgroundVideo.stopVideoRecord((res) => console.debug(res), (res) => console.error(res));
+    backgroundVideo.stopVideoRecord(
+      (suc) => { console.log(suc) },
+      (err) => { console.error("error code : " + err) }
+    );
   }
 
   ngOnDestroy() {
