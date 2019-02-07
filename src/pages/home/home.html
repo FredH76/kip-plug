@@ -8,11 +8,19 @@
 
 <ion-content padding>
   <p>
+    <span class="label">Select Resolution :</span>
+    <ion-range [(ngModel)]="quality" snaps="true" color="primary" min="0" max="3" step="1">
+      <ion-icon range-left small name="film" color="primary"></ion-icon>
+      <ion-icon range-right name="film" color="primary"></ion-icon>
+    </ion-range>
+    <br>
+
     <button ion-button large outline block icon-start (click)="hasCamera()">
       <ion-icon name="camera"></ion-icon>
       has camera
     </button>
     <br>
+
     <button ion-button large outline block icon-start (click)="startVideoRecord()">
       <ion-icon name="play"></ion-icon>
       start recording
