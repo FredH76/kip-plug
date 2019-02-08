@@ -23,7 +23,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 public class BackgroundVideoPlugin extends CordovaPlugin {
 
   public static final int ERROR_CODE_NO_CAMERA = 1;
@@ -89,7 +88,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     if (action.equals("startVideoRecord")) {
 
       // check if fileDestination parameter is present
-      if (args.length() <= 0 || args.getString(0) == "null") {
+      if (args.getString(0) == "null") {
         callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
         return false;
       }
@@ -192,6 +191,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     intent.putExtra("quality", this.videoQuality);
     intent.putExtra("fileDestination", this.fileDestination);
+    intent.putExtra("cameraSelection", this.cameraSelection);
     cordova.getActivity().startService(intent);
     callbackContext.success("start camera"); // Thread-safe.
   }

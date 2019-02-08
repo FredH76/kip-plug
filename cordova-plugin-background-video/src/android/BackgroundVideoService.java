@@ -34,14 +34,18 @@ public class BackgroundVideoService extends Service {
   public static final int QUALITY_MEDIUM = 2;
   public static final int QUALITY_HIGH = 3;
 
+  public static final int CAMERA_POSITION_BACK = 0;
+  public static final int CAMERA_POSITION_FRONT = 1;
+
   private static final String TAG = "BackgroundVideoService";
   private static Camera mCamera;
   //private ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
   private boolean mRecordingStatus;
   private MediaRecorder mMediaRecorder;
   private int videoResolution= CamcorderProfile.QUALITY_LOW;
+  private int camNumber = 0;
+  private int camOrientation = 90;
   private String fileDestination;
-  private int camPosition;
 
   @Override
   public void onStart(Intent intent, int startId) {
@@ -55,9 +59,13 @@ public class BackgroundVideoService extends Service {
     //camPosition = intent.getParcelableExtra("camPosisiton");
     fileDestination = intent.getStringExtra("fileDestination");
     int quality = intent.getIntExtra("quality",0);
+    int cameraSelection = intent.getIntExtra("cameraSelection",0);
 
     //set resolution
     setResolution(quality);
+
+    //select Camera
+    selectCamera(cameraSelection);
 
     // start recording
     startRecording();
@@ -120,6 +128,29 @@ public class BackgroundVideoService extends Service {
   }
 
   /*************************************************************************************************
+   * select Camera : BACK or FRONT
+   ************************************************************************************************/
+  private void selectCamera(int pos){
+    Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+    int numberOfCameras = Camera.getNumberOfCameras();
+
+    // scan all camera available
+    for (int i = 0; i < numberOfCameras; i++) {
+      Camera.getCameraInfo(i, cameraInfo);
+
+      //select the first FRONT camera if user's choice
+      if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+        if(pos == CAMERA_POSITION_FRONT){
+          this.camNumber=i;
+          this.camOrientation = cameraInfo.orientation;
+          return;
+        }
+      }
+    }
+    this.camNumber=0;
+  }
+
+  /*************************************************************************************************
    * startRecording : prepare media recorder and start video recording
    ************************************************************************************************/
   private boolean startRecording() {
@@ -132,7 +163,7 @@ public class BackgroundVideoService extends Service {
     // START VIDEO
     try {
       // STEP 0 : Init CAMERA and MEDIA RECORDER
-      mCamera = getCameraInstance();
+      mCamera = getCameraInstance(this.camNumber);
       if (mCamera == null)
         stopRecording();
       mMediaRecorder = new MediaRecorder();
@@ -146,7 +177,7 @@ public class BackgroundVideoService extends Service {
       mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
 
       // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
-      mMediaRecorder.setOrientationHint(90);
+      mMediaRecorder.setOrientationHint(this.camOrientation);
       mMediaRecorder.setProfile(CamcorderProfile.get(this.videoResolution));
 
       // Step 4: Set output file
@@ -205,10 +236,10 @@ public class BackgroundVideoService extends Service {
   /*************************************************************************************************
    * Get a Camera instance (FRONT or BACK)
    ************************************************************************************************/
-  private static Camera getCameraInstance() {
+  private static Camera getCameraInstance(int camNum) {
     Camera c = null;
     try {
-      c = Camera.open(); // attempt to get a Camera instance
+      c = Camera.open(camNum); // attempt to get a Camera instance
     } catch (Exception e) {
       // Camera is not available (in use or does not exist)
     }
