@@ -40,6 +40,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
 
   private static final String TAG = "BackgroundVideoService";
   private int videoQuality;
+  private int cameraSelection;
   private String fileDestination = "";
   private CallbackContext callbackContext;
 
@@ -54,42 +55,58 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     }
 
     if (action.equals("setQuality")) {
-      
+
       // check if quality parameter is present
-      if (args.length() <= 0 || args.getString(0) == "null") {
+      if(!(args.get(0) instanceof Integer)){
         callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
         return false;
       }
-      
+
       // get quality from args[]
       int quality = args.getInt(0);
-      
+
       // set quality for video
       this.setQuality(quality, callbackContext);
       return true;
     }
 
+    if (action.equals("selectCamera")) {
+
+      // check if cameraSelection parameter is present
+      if(!(args.get(0) instanceof Integer)){
+        callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
+        return false;
+      }
+
+      // get cameraSelection from args[]
+      int cameraSelection = args.getInt(0);
+
+      // select camera to use for video
+      this.selectCamera(cameraSelection, callbackContext);
+      return true;
+    }
+
     if (action.equals("startVideoRecord")) {
-      
+
       // check if fileDestination parameter is present
       if (args.length() <= 0 || args.getString(0) == "null") {
         callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
         return false;
       }
-      
+
       // get file destination from args[]
       this.fileDestination = args.getString(0);
-      
+
       // remove cordova prefixe
       this.fileDestination= this.fileDestination.replaceAll("file://","");
-      
+
       // test if file destiantion is valid
       if(!isFileDestinationValid(this.fileDestination)){
         callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
         return false;
       }
       // this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
-      
+
       // start video record
       this.startVideoRecord(this.fileDestination, callbackContext);
       return true;
@@ -123,6 +140,15 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     this.videoQuality = quality;
   }
 
+  /*************************************************************************************************
+   * setQuality : set video quality
+   ************************************************************************************************/
+  private void selectCamera(int cameraSelection, CallbackContext callbackContext) {
+    //check if camera selection is available (FRONt or BACK)
+
+    //else select defautl camera
+    this.cameraSelection = cameraSelection;
+  }
   /*************************************************************************************************
    * startVideoRecord : start recording a video and save it to destFile
    ************************************************************************************************/
