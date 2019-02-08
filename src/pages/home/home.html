@@ -8,6 +8,14 @@
 
 <ion-content padding>
   <p>
+
+    <span class="label">Select Camera :</span>
+    <ion-range class="camera" [(ngModel)]="cameraPos" snaps="true" color="primary" min="0" max="1" step="1">
+      <ion-label range-left>Back</ion-label>
+      <ion-label range-right>Front</ion-label>
+    </ion-range>
+    <br>
+
     <span class="label">Select Resolution :</span>
     <ion-range [(ngModel)]="quality" snaps="true" color="primary" min="0" max="3" step="1">
       <ion-icon range-left small name="film" color="primary"></ion-icon>

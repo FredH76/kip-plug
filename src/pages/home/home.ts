@@ -17,6 +17,7 @@ export class HomePage {
   private onResumeSubscription: Subscription;
   private myPhonNumber: String;
   private quality: number = 1;
+  private cameraPos: number = 0;
 
   constructor(
     public navCtrl: NavController,
@@ -54,6 +55,10 @@ export class HomePage {
       + dateNow.getSeconds();
     fileDest = cordova.file.externalRootDirectory + "Pictures/KipKare/kip_" + timeStamp + ".mp4";
 
+    // set camera position
+    backgroundVideo.selectCamera(this.cameraPos);
+
+    // set quality
     backgroundVideo.setQuality(this.quality);
 
     backgroundVideo.startVideoRecord(
