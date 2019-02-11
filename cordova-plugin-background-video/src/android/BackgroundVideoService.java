@@ -75,10 +75,6 @@ public class BackgroundVideoService extends Service {
     Intent notificationIntent = new Intent();
     PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
     Notification notification = new Notification.Builder(this)
-      .setContentTitle("Video")
-      .setContentText("Enregistrement en cours ...")
-      .setSmallIcon(R.drawable.ic_camera_on)
-      .setContentIntent(pendingIntent)
       .build();
     startForeground(1, notification);
 
