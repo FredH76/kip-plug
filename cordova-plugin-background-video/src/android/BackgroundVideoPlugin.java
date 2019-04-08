@@ -1,23 +1,21 @@
 package com.crossAppStudio.backgroundVideo;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.app.Activity;
 import android.content.Intent;
-import android.hardware.Camera;
-import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
-//import android.support.v4.app.ActivityCompat;
-//import android.support.v4.content.ContextCompat;
 
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -43,6 +41,30 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   private String fileDestination = "";
   private CallbackContext callbackContext;
 
+  /*************************************************************************************************
+   * Process message from service
+   ************************************************************************************************/
+  private BroadcastReceiver mSvcMsgReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      String type = intent.getStringExtra("type");
+      String message = intent.getStringExtra("message");
+      switch (type ){
+        case "error":
+          callbackContext.error(message);
+          break;
+        case "success":
+          callbackContext.success(message);
+          break;
+        default:
+          Log.d(TAG, "unknown message from background video service");
+      }
+    }
+  };
+
+  /*************************************************************************************************
+   * Main methods to execute PLUGIN FUNCTIONS
+   ************************************************************************************************/
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
     // save callbackContext
@@ -137,16 +159,15 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
    ************************************************************************************************/
   private void setQuality(int quality, CallbackContext callbackContext) {
     this.videoQuality = quality;
+    callbackContext.success("quality set");
   }
 
   /*************************************************************************************************
-   * setQuality : set video quality
+   * selectCamera : select camera
    ************************************************************************************************/
   private void selectCamera(int cameraSelection, CallbackContext callbackContext) {
-    //check if camera selection is available (FRONt or BACK)
-
-    //else select defautl camera
     this.cameraSelection = cameraSelection;
+    callbackContext.success("camera selected");
   }
   /*************************************************************************************************
    * startVideoRecord : start recording a video and save it to destFile
@@ -187,13 +208,17 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       return;
     }*/
 
+    // set listener for background video service
+    LocalBroadcastManager.getInstance(cordova.getActivity()).registerReceiver(mSvcMsgReceiver, new IntentFilter("MessageFromService"));
+
+    // start background video service
     Intent intent = new Intent(cordova.getActivity(), BackgroundVideoService.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     intent.putExtra("quality", this.videoQuality);
     intent.putExtra("fileDestination", this.fileDestination);
     intent.putExtra("cameraSelection", this.cameraSelection);
     cordova.getActivity().startService(intent);
-    callbackContext.success("start camera"); // Thread-safe.
+    //callbackContext.success("start camera"); // Thread-safe.
   }
 
   /*************************************************************************************************
@@ -201,7 +226,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
    ************************************************************************************************/
   private void stopVideoRecord(CallbackContext callbackContext) {
     cordova.getActivity().stopService(new Intent(cordova.getActivity(), BackgroundVideoService.class));
-    callbackContext.success("stop camera"); // Thread-safe.
+    //callbackContext.success("stop camera"); // Thread-safe.
   }
 
   /*************************************************************************************************

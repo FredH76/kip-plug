@@ -1,32 +1,21 @@
 package com.crossAppStudio.backgroundVideo;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.hardware.Camera.Size;
-import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaRecorder;
 import android.media.ToneGenerator;
-import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.widget.Toast;
-
-import io.ionic.starter.R;
 
 public class BackgroundVideoService extends Service {
   public static final int QUALITY_MIN = 0;
@@ -73,12 +62,12 @@ public class BackgroundVideoService extends Service {
     // Put this service in foreground to prevent being killed by system
     // rq: notification is mandatory for Android 9 (API >= 28)
     Intent notificationIntent = new Intent();
-    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+    //PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
     Notification notification = new Notification.Builder(this)
       .setContentTitle("Video")
-      .setContentText("Enregistrement en cours ...")
-      .setSmallIcon(R.drawable.ic_camera_on)
-      .setContentIntent(pendingIntent)
+      //.setContentText("Enregistrement en cours ...")
+      //.setSmallIcon(R.drawable.ic_camera_on)
+      //.setContentIntent(pendingIntent)
       .build();
     startForeground(1, notification);
 
@@ -192,11 +181,16 @@ public class BackgroundVideoService extends Service {
       mMediaRecorder.prepare();
       mMediaRecorder.start();
 
+      // call success callback
+      sendMessage("success", "video started");
+
       return true;
     } catch (IllegalStateException e) {
       stopRecording();
+      sendMessage("error","camera is already in use by another app ");
       return false;
     } catch (IOException e) {
+      sendMessage("error","IOException from startRecording method in BackgroundVideoService");
       stopRecording();
       return false;
     }
@@ -217,6 +211,7 @@ public class BackgroundVideoService extends Service {
       try {
         mMediaRecorder.stop();  // stop the recording
       } catch (IllegalStateException e) {
+        //sendMessage("error", "mMediaRecorder.stop()is called before start() in BackgroundVideoService");
       }
       ;
       mMediaRecorder.reset();   // clear recorder configuration
@@ -244,5 +239,15 @@ public class BackgroundVideoService extends Service {
       // Camera is not available (in use or does not exist)
     }
     return c;
+  }
+
+  /*************************************************************************************************
+   * send Error message to Activity
+   ************************************************************************************************/
+  private void sendMessage(String type, String msg) {
+    Intent intent = new Intent("MessageFromService");
+    intent.putExtra("type", type);
+    intent.putExtra("message", msg);
+    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
   }
 }
