@@ -27,7 +27,8 @@ platforms/
 plugins/
 plugins/android.json
 plugins/ios.json
-www/
+www/*
+!cordova-plugin-background-video/www/backgroundVideo.js
 $RECYCLE.BIN/
 
 .DS_Store
