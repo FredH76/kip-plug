@@ -121,13 +121,6 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       // remove cordova prefixe
       this.fileDestination= this.fileDestination.replaceAll("file://","");
 
-      // test if file destination is valid
-      if(!isFileDestinationValid(this.fileDestination)){
-        callbackContext.error("ERROR : INVALID_FILE_DESTINATION");
-        return false;
-      }
-      // this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
-
       // start video record
       this.startVideoRecord(this.fileDestination, callbackContext);
       return true;
@@ -208,6 +201,13 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       return;
     }*/
 
+    // test if file destination is valid
+    if(!isFileDestinationValid(this.fileDestination)){
+      callbackContext.error("ERROR : INVALID_FILE_DESTINATION");
+      return;
+    }
+    // this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
+    
     // set listener for background video service
     LocalBroadcastManager.getInstance(cordova.getActivity()).registerReceiver(mSvcMsgReceiver, new IntentFilter("MessageFromService"));
 
