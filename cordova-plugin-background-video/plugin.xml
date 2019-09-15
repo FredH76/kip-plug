@@ -42,7 +42,7 @@
         <source-file src="src/android/res/drawable-xxhdpi/ic_camera_on.png" target-dir="res/drawable-xxhdpi/" />
 
         <!-- import other repo and compile them -->
-        <!--<framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />-->
+        <framework src="src/android/build-extras.gradle" custom="true" type="gradleReference" />
 
     </platform>
 </plugin>

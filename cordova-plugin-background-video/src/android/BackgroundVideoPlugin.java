@@ -51,7 +51,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       String message = intent.getStringExtra("message");
       switch (type ){
         case "error":
-          callbackContext.error(message);
+          callbackContext.error("ERROR from BackgroundVideoService : " + message);
           break;
         case "success":
           callbackContext.success(message);
@@ -79,7 +79,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
 
       // check if quality parameter is present
       if(!(args.get(0) instanceof Integer)){
-        callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
+        callbackContext.error("ERROR : PARAMETER_EXPECTED");
         return false;
       }
 
@@ -95,7 +95,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
 
       // check if cameraSelection parameter is present
       if(!(args.get(0) instanceof Integer)){
-        callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
+        callbackContext.error("ERROR : PARAMETER_EXPECTED");
         return false;
       }
 
@@ -111,7 +111,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
 
       // check if fileDestination parameter is present
       if (args.getString(0) == "null") {
-        callbackContext.error(ERROR_CODE_PARAMETER_EXPECTED);
+        callbackContext.error("ERROR : PARAMETER_EXPECTED");
         return false;
       }
 
@@ -121,9 +121,9 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       // remove cordova prefixe
       this.fileDestination= this.fileDestination.replaceAll("file://","");
 
-      // test if file destiantion is valid
+      // test if file destination is valid
       if(!isFileDestinationValid(this.fileDestination)){
-        callbackContext.error(ERROR_CODE_INVALID_FILE_DESTINATION);
+        callbackContext.error("ERROR : INVALID_FILE_DESTINATION");
         return false;
       }
       // this.fileDestination = createOutputMediaFile(); // FOR DEBUG ONLY
@@ -147,10 +147,10 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
   private void hasCamera(CallbackContext callbackContext) {
     if (cordova.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
       Toast.makeText(cordova.getActivity().getBaseContext(), "this device has camera", Toast.LENGTH_SHORT).show();
-      callbackContext.success();
+      callbackContext.success("this device has camera");
     } else {
       Toast.makeText(cordova.getActivity().getBaseContext(), "this device has no camera", Toast.LENGTH_SHORT).show();
-      callbackContext.error(ERROR_CODE_NO_CAMERA);
+      callbackContext.error("this device has no camera");
     }
   }
 
@@ -177,7 +177,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
 
     // check if device has camera
     if (!cordova.getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-      callbackContext.error(ERROR_CODE_NO_CAMERA);
+      callbackContext.error("Cannot start video because this device has no camera");
       return;
     }
 
@@ -217,16 +217,23 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
     intent.putExtra("quality", this.videoQuality);
     intent.putExtra("fileDestination", this.fileDestination);
     intent.putExtra("cameraSelection", this.cameraSelection);
-    cordova.getActivity().startService(intent);
-    //callbackContext.success("start camera"); // Thread-safe.
+    try {
+      cordova.getActivity().startService(intent);
+    } catch (Exception e){
+      callbackContext.error("ERROR : CAN NOT START SERVICE. " + e.getMessage());
+    }
+    //callbackContext.success("start camera"); // success will be call through listener
   }
 
   /*************************************************************************************************
    * stopVideoRecord : stop recording a video
    ************************************************************************************************/
   private void stopVideoRecord(CallbackContext callbackContext) {
-    cordova.getActivity().stopService(new Intent(cordova.getActivity(), BackgroundVideoService.class));
-    //callbackContext.success("stop camera"); // Thread-safe.
+    try {
+      cordova.getActivity().stopService(new Intent(cordova.getActivity(), BackgroundVideoService.class));
+    } catch (Exception e) {
+      callbackContext.error("ERROR : CAN NOT STOP SERVICE. " + e.getMessage());
+    }
   }
 
   /*************************************************************************************************
@@ -240,7 +247,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
           startVideoRecord(this.fileDestination, this.callbackContext);
         } else {
           Toast.makeText(cordova.getActivity().getBaseContext(), "Vous devez autoriser l'usage de la camera pour utiliser cette fonction", Toast.LENGTH_LONG).show();
-          callbackContext.error(ERROR_CODE_NO_PERMISSION_FOR_CAMERA);
+          callbackContext.error("ERROR : NO_PERMISSION_FOR_CAMERA");
         }
         return;
       }
@@ -249,7 +256,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
           startVideoRecord(this.fileDestination, this.callbackContext);
         } else {
           Toast.makeText(cordova.getActivity().getBaseContext(), "Vous devez autoriser l'usage du micro pour utiliser cette fonction", Toast.LENGTH_LONG).show();
-          callbackContext.error(ERROR_CODE_NO_PERMISSION_FOR_RECORD_AUDIO);
+          callbackContext.error("ERROR : NO_PERMISSION_FOR_RECORD_AUDIO");
         }
         return;
       }
@@ -258,7 +265,7 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
           startVideoRecord(this.fileDestination, this.callbackContext);
         } else {
           Toast.makeText(cordova.getActivity().getBaseContext(), "Vous devez autoriser le stokage de fichier pour utiliser cette fonction", Toast.LENGTH_SHORT).show();
-          callbackContext.error(ERROR_CODE_NO_PERMISSION_FOR_WRITE_EXTERNAL_STORAGE);
+          callbackContext.error("ERROR : NO_PERMISSION_FOR_WRITE_EXTERNAL_STORAGE");
         }
         return;
       }
@@ -306,11 +313,15 @@ public class BackgroundVideoPlugin extends CordovaPlugin {
       }
       return true;
     } catch (NullPointerException e) {
-      Log.d(TAG, "failed to create directory for file : " + fileName);
+      Log.d(TAG, "NullPointerException: failed to create directory for file : " + fileName);
       return false;
     } catch (SecurityException e) {
-      Log.d(TAG, "failed to create directory for file : " + fileName);
+      Log.d(TAG, "SecurityException: failed to create directory for file : " + fileName);
+      return false;
+    } catch (Exception e) {
+      Log.d(TAG, "Exception: failed to create directory for file : " + fileName);
       return false;
     }
+
   }
 }
