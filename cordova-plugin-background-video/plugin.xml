@@ -29,7 +29,7 @@
 
         <!-- insert new service -->
         <config-file target="AndroidManifest.xml" parent="/manifest/application/">
-            <service android:enabled="true" android:name="com.crossAppStudio.backgroundVideo.BackgroundVideoService" />
+            <service android:enabled="true" android:hardwareAccelerated="true" android:name="com.crossAppStudio.backgroundVideo.BackgroundVideoService" />
         </config-file>
 
         <source-file src="src/android/BackgroundVideoPlugin.java" target-dir="src/com/crossAppStudio/backgroundVideo" />

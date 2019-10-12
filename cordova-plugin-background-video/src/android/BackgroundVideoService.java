@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
@@ -153,14 +154,20 @@ public class BackgroundVideoService extends Service {
       Camera.getCameraInfo(i, cameraInfo);
 
       //select the first FRONT camera if user's choice
-      if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-        if (pos == CAMERA_POSITION_FRONT) {
+      if ((pos == CAMERA_POSITION_FRONT) && (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT)) {
           this.camNumber = i;
           this.camOrientation = cameraInfo.orientation;
           return;
-        }
+      }
+      //select the first BACK camera if user's choice
+      if ((pos == CAMERA_POSITION_BACK) && (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)) {
+        this.camNumber = i;
+        this.camOrientation = cameraInfo.orientation;
+        return;
       }
     }
+
+    // default camera selection:
     this.camNumber = 0;
   }
 
@@ -194,9 +201,10 @@ public class BackgroundVideoService extends Service {
     mMediaRecorder.setOutputFile(fileDestination);
 
     // Step 5: Set hidden preview output (requires API Level 23 or higher)
-    Surface hiddenSurface = MediaCodec.createPersistentInputSurface();
+    Surface mySurface = new Surface(new SurfaceTexture(1));
+    //Surface hiddenSurface = MediaCodec.createPersistentInputSurface();
     //mMediaRecorder.setPreviewDisplay(mPreview.getHolder().getSurface());
-    mMediaRecorder.setPreviewDisplay(hiddenSurface);
+    mMediaRecorder.setPreviewDisplay(mySurface);
 
     // Step 6: Prepare and start MediaRecorder
     mMediaRecorder.prepare();
